@@ -1,4 +1,5 @@
 import AddToCart from "./components/AddToCart";
+import ProductInventory from "./components/ProductInventory";
 
 export default function App() {
   return (
@@ -9,6 +10,10 @@ export default function App() {
       <br />
 
       <h2>2</h2>
+      <ProductInventory />
+
+      <br />
+      <br />
     </main>
   );
 }
