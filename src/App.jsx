@@ -1,19 +1,16 @@
+import "./App.css";
 import AddToCart from "./components/AddToCart";
+import Login from "./components/Login";
 import ProductInventory from "./components/ProductInventory";
 
 export default function App() {
   return (
-    <main>
-      <h2>1</h2>
+    <main className="App">
+      <Login />
+      <hr />
       <AddToCart />
-      <br />
-      <br />
-
-      <h2>2</h2>
+      <hr />
       <ProductInventory />
-
-      <br />
-      <br />
     </main>
   );
 }
