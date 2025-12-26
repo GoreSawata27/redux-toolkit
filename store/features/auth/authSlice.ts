@@ -1,59 +1,33 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { loginApi } from "@/services/auth/authApi";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { AuthState } from "./authTypes";
 
-const fakeLoginApi = async ({ email, password }) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (email === "test@test.com" && password === "1234") {
-        resolve({ token: "fake_jwt_token_123" });
-      } else {
-        reject(new Error("Invalid credentials"));
-      }
-    }, 1000);
-  });
-};
-
-const fakeUserDetailsApi = async () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        id: 1,
-        name: "John Doe",
-        email: "test@test.com",
-      });
-    }, 1000);
-  });
+const initialState: AuthState = {
+  user: null,
+  token: null,
+  loading: false,
+  error: null,
 };
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
-  async ({ email, password }, { rejectWithValue }) => {
+  async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const loginResponse = await fakeLoginApi({ email, password });
-
-      const userDetails = await fakeUserDetailsApi(loginResponse.token);
-
-      return {
-        token: loginResponse.token,
-        user: userDetails,
-      };
-    } catch (err) {
-      return rejectWithValue(err.message);
+      const data = await loginApi({ email, password });
+      return data;
+    } catch {
+      return rejectWithValue("Invalid email or password");
     }
   }
 );
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: {
-    token: null,
-    user: null,
-    loading: false,
-    error: null,
-  },
+  initialState,
   reducers: {
     logout: (state) => {
-      state.token = null;
       state.user = null;
+      state.token = null;
     },
   },
   extraReducers: (builder) => {
@@ -64,12 +38,12 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.token = action.payload.token;
         state.user = action.payload.user;
+        state.token = action.payload.token;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload as string;
       });
   },
 });
