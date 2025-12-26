@@ -1,61 +1,49 @@
+import { loginApi } from "@/services/auth/authApi";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import { AuthState } from "./authTypes";
 
-type loginData = {
-  email: string;
-  password: string;
-};
-
-const login = async ({ email, password }: loginData) => {
-  const payload = { email, password };
-  const res = await axios.post("http://localhost:3000/api/auth/login", payload);
-  return res.data;
+const initialState: AuthState = {
+  user: null,
+  token: null,
+  loading: false,
+  error: null,
 };
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
-  async ({ email, password }: loginData, { rejectWithValue }) => {
+  async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const apiRes = await login({ email, password });
-
-      return {
-        token: apiRes.token,
-        user: apiRes.user,
-      };
-    } catch (err) {
-      return rejectWithValue("Login failed");
+      const data = await loginApi({ email, password });
+      return data;
+    } catch {
+      return rejectWithValue("Invalid email or password");
     }
   }
 );
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: {
-    isLoading: false,
-    token: null,
-    user: null,
-    error: null,
-  },
+  initialState,
   reducers: {
     logout: (state) => {
-      state.token = null;
       state.user = null;
+      state.token = null;
     },
   },
-  extraReducers(builder) {
+  extraReducers: (builder) => {
     builder
       .addCase(loginUser.pending, (state) => {
-        state.isLoading = true;
+        state.loading = true;
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        state.isLoading = false;
+        state.loading = false;
         state.user = action.payload.user;
         state.token = action.payload.token;
       })
       .addCase(loginUser.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload;
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
