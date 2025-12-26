@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🔐 Login Flow (Redux Toolkit + Next.js)
 
-## Getting Started
+This project implements a simple authentication flow using **Redux Toolkit** with **Next.js App Router**.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Flow Overview
+
+```text
+Login Page
+ → User enters email & password
+ → Dispatch loginUser async thunk
+ → API request is sent
+ → Redux updates auth state
+ → UI reacts to state changes
+ → User is redirected to dashboard
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How It Works
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- The login form collects user credentials
+- On submit, a Redux async thunk (`loginUser`) is dispatched
+- Redux sets `loading = true` while the API request is in progress
+- The authentication API validates the credentials
+- On success:
+  - User and token are stored in Redux state
+  - Loading stops
+  - User is redirected to `/dashboard`
+- On failure:
+  - An error message is stored in Redux state
+  - Loading stops
+  - UI displays the error
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## State Managed by Redux
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The auth slice manages the following state:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `loading` – indicates login request status
+- `user` – authenticated user data
+- `token` – JWT token returned from API
+- `error` – login failure message
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project Structure (High Level)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+app/            → Pages and routing (Next.js App Router)
+services/       → API calls (auth)
+store/          → Redux setup and auth slice
+```
+
+---
+
+## Result
+
+After a successful login, the user is authenticated in Redux and automatically navigated to the dashboard.
